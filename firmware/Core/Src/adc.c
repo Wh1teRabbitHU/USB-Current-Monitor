@@ -60,7 +60,7 @@ double ADC_readCurrent(I2C_HandleTypeDef* handler) {
 
     volatile uint32_t rawData = ADC_readData(handler);
     volatile double resistor = currentLevel == 1 ? CURRENT_01_R : CURRENT_02_R;
-    double current = ((rawData * MEASUREMENT_UNIT) / CURRENT_OPAMP_GAIN) / resistor;
+    double current = ((rawData * MEASUREMENT_UNIT) / CURRENT_OPAMP_GAIN) / resistor - CURRENT_OFFSET_ERROR;
 
     if (currentLevel == 1 && current < CURRENT_01_CUT_LEVEL) {
         HAL_GPIO_WritePin(PATH_2_EN_GPIO_Port, PATH_2_EN_Pin, 1);
@@ -74,5 +74,5 @@ double ADC_readCurrent(I2C_HandleTypeDef* handler) {
         currentLevel = 1;
     }
 
-    return current;
+    return current < 0 ? 0 : current;
 }

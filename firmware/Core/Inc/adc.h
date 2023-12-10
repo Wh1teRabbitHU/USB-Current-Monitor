@@ -11,6 +11,7 @@
 #define CURRENT_01_CUT_LEVEL 20
 #define CURRENT_02_R (5.1)
 #define CURRENT_02_CUT_LEVEL 5
+#define CURRENT_OFFSET_ERROR 0.044
 #define MEASUREMENT_UNIT 0.0625  // in mV one bit
 
 void ADC_init(I2C_HandleTypeDef* handler);
