@@ -8,7 +8,9 @@
 #define VOLTAGE_MULTIPLIER (5 / 0.652)
 #define CURRENT_OPAMP_GAIN 50
 #define CURRENT_01_R (0.005)
+#define CURRENT_01_CUT_LEVEL 20
 #define CURRENT_02_R (5.1)
+#define CURRENT_02_CUT_LEVEL 5
 #define MEASUREMENT_UNIT 0.0625  // in mV one bit
 
 void ADC_init(I2C_HandleTypeDef* handler);
