@@ -97,14 +97,14 @@ int main(void) {
     HAL_GPIO_WritePin(DISPLAY_BLACKLIGHT_EN_GPIO_Port, DISPLAY_BLACKLIGHT_EN_Pin, 1);
 
     Display_textProps voltageLabelProps = {.font = font,
-                                           .text = "Waiting",
+                                           .text = "Loading",
                                            .posX = 5,
                                            .posY = 20,
                                            .fontSize = 2,
                                            .fontColor = CONVERT_24BIT_COLOR(0x0000FF),
                                            .backgroundColor = CONVERT_24BIT_COLOR(0x0)};
     Display_textProps currentLabelProps = {.font = font,
-                                           .text = "0mA",
+                                           .text = "Loading",
                                            .posX = 5,
                                            .posY = 60,
                                            .fontSize = 2,
@@ -129,11 +129,21 @@ int main(void) {
         /* USER CODE BEGIN 3 */
 
         volatile double voltage = ADC_readVoltage(&hi2c1);
-        formatFloat(textBuffer, "%d.%03d V", voltage);
+        volatile double current = ADC_readCurrent(&hi2c1);
+
+        formatFloat(textBuffer, voltage, "V");
         voltageLabelProps.text = textBuffer;
         Display_drawText(&voltageLabelProps);
 
-        HAL_Delay(200);
+        if (current < 1) {
+            formatFloat(textBuffer, current * 1000, "uA");
+        } else {
+            formatFloat(textBuffer, current, "mA");
+        }
+        currentLabelProps.text = textBuffer;
+        Display_drawText(&currentLabelProps);
+
+        HAL_Delay(100);
     }
     /* USER CODE END 3 */
 }

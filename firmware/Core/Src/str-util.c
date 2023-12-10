@@ -1,8 +1,19 @@
 #include "str-util.h"
 
-void formatFloat(char* target, char* src, float value) {
-    int decimal = value;  // Get the integer (678).
-    int fraction = trunc((value - decimal) * 1000);
+void formatFloat(char* target, float value, char* unit) {
+    int decimal = value;
+    int fraction = trunc((value - decimal) * 100);
+    char* padding;
 
-    sprintf(target, src, decimal, fraction);
+    if (decimal < 10) {
+        padding = "   ";
+    } else if (decimal < 100) {
+        padding = "  ";
+    } else if (decimal < 1000) {
+        padding = " ";
+    } else {
+        padding = "";
+    }
+
+    sprintf(target, "%s%d.%02d %s", padding, decimal, fraction, unit);
 }
