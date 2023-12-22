@@ -26,6 +26,7 @@ void Display_drawCharacter(uint8_t *font, uint8_t character, uint16_t x, uint16_
 void Display_drawText(Display_textProps *textProps);
 void Display_drawCircle(uint16_t x0, uint16_t y0, uint16_t r, uint16_t color);
 void Display_drawRectangle(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t color);
+void Display_fillRectangle(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t color);
 void Display_drawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t color);
 void Display_drawPoint(uint16_t x, uint16_t y, uint16_t color);
 void Display_drawPicture(uint16_t x, uint16_t y, uint16_t length, uint16_t width, const uint8_t pic[]);

@@ -37,6 +37,14 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 
+#define DIAGRAM_WIDTH (BUFFER_SIZE)
+#define DIAGRAM_HEIGHT 150
+#define DIAGRAM_OFFSET 2
+#define DIAGRAM_START_X 3
+#define DIAGRAM_START_Y 150
+#define DIAGRAM_END_X (DIAGRAM_START_X + DIAGRAM_WIDTH)
+#define DIAGRAM_END_Y (DIAGRAM_START_Y + DIAGRAM_HEIGHT)
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -128,7 +136,8 @@ int main(void) {
     Display_drawText(&powerLabelProps);
 
     // Frame for the diagram
-    Display_drawRectangle(1, 148, DISPLAY_WIDTH - 2, 302, 0x0);
+    Display_drawRectangle(DIAGRAM_START_X - DIAGRAM_OFFSET, DIAGRAM_START_Y - DIAGRAM_OFFSET,
+                          DIAGRAM_END_X + DIAGRAM_OFFSET, DIAGRAM_END_Y + DIAGRAM_OFFSET, 0x0);
 
     /* USER CODE END 2 */
 
@@ -171,15 +180,21 @@ int main(void) {
         powerLabelProps.text = textBuffer;
         Display_drawText(&powerLabelProps);
 
+        // Display diagram graph
         for (uint16_t i = 0; i < BUFFER_SIZE; i++) {
             double currentValue = Buffer_readValue(i);
             double nextValue = Buffer_readValue(i + 1);
+            uint16_t currentX = DIAGRAM_START_Y + (DIAGRAM_HEIGHT - (currentValue / maxCurrent * DIAGRAM_HEIGHT));
+            uint16_t nextX = DIAGRAM_START_Y + (DIAGRAM_HEIGHT - (nextValue / maxCurrent * DIAGRAM_HEIGHT));
 
-            if (currentValue != nextValue) {
-                Display_drawPoint(i + 3, 150 + (150 - (nextValue / maxCurrent * 150)), whiteColor);
+            // Only overwrite if the previous datapoint is not fully covered
+            if (currentX > nextX) {
+                Display_fillRectangle(DIAGRAM_START_X + i, nextX, 1, currentX - nextX, whiteColor);
+            } else if (i == BUFFER_SIZE - 1) {
+                Display_fillRectangle(DIAGRAM_START_X + i, DIAGRAM_START_Y, 1, DIAGRAM_HEIGHT, whiteColor);
             }
 
-            Display_drawPoint(i + 3, 150 + (150 - (currentValue / maxCurrent * 150)), 0x0);
+            Display_fillRectangle(DIAGRAM_START_X + i, currentX, 1, DIAGRAM_END_Y - currentX, 0x0);
         }
     }
     /* USER CODE END 3 */

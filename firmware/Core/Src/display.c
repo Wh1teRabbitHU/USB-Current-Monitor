@@ -321,6 +321,14 @@ void Display_drawRectangle(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, u
     Display_drawLine(x2, y1, x2, y2, color);
 }
 
+void Display_fillRectangle(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t color) {
+    Display_setPosition(x, y, x + width - 1, y + height - 1);
+
+    for (uint16_t repeat = 0; repeat < width * height; repeat++) {
+        Display_sendDataHalfWord(color);
+    }
+}
+
 void Display_drawCircle(uint16_t x0, uint16_t y0, uint16_t r, uint16_t color) {
     int16_t a = 0;
     int16_t b = r;
