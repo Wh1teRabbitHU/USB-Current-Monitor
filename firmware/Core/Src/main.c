@@ -101,22 +101,22 @@ int main(void) {
                                            .posX = 5,
                                            .posY = 20,
                                            .fontSize = 2,
-                                           .fontColor = CONVERT_24BIT_COLOR(0x0000FF),
-                                           .backgroundColor = CONVERT_24BIT_COLOR(0x0)};
+                                           .fontColor = 0x0,
+                                           .backgroundColor = CONVERT_24BIT_COLOR(0xFFFFFF)};
     Display_textProps currentLabelProps = {.font = font,
                                            .text = "Loading",
                                            .posX = 5,
                                            .posY = 60,
                                            .fontSize = 2,
-                                           .fontColor = CONVERT_24BIT_COLOR(0x0000FF),
-                                           .backgroundColor = CONVERT_24BIT_COLOR(0x0)};
+                                           .fontColor = 0x0,
+                                           .backgroundColor = CONVERT_24BIT_COLOR(0xFFFFFF)};
     Display_textProps powerLabelProps = {.font = font,
                                          .text = "Loading",
                                          .posX = 5,
                                          .posY = 100,
                                          .fontSize = 2,
-                                         .fontColor = CONVERT_24BIT_COLOR(0x0000FF),
-                                         .backgroundColor = CONVERT_24BIT_COLOR(0x0)};
+                                         .fontColor = 0x0,
+                                         .backgroundColor = CONVERT_24BIT_COLOR(0xFFFFFF)};
 
     Display_init();
     Display_drawText(&voltageLabelProps);

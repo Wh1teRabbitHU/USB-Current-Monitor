@@ -177,7 +177,7 @@ void Display_init(void) {
     Display_sendCmd(0x29);
     HAL_Delay(10);
 
-    Display_clear(0x0);
+    Display_clear(CONVERT_24BIT_COLOR(0xFFFFFF));
 
     HAL_GPIO_WritePin(DISPLAY_BLACKLIGHT_EN_GPIO_Port, DISPLAY_BLACKLIGHT_EN_Pin, 1);
 }
