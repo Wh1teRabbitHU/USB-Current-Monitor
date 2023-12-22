@@ -22,6 +22,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "adc.h"
+#include "buffer.h"
 #include "display.h"
 #include "font.h"
 #include "stdio.h"
@@ -47,6 +48,9 @@
 I2C_HandleTypeDef hi2c1;
 
 /* USER CODE BEGIN PV */
+
+const uint16_t whiteColor = CONVERT_24BIT_COLOR(0xFFFFFF);
+const double maxCurrent = 5000;
 
 /* USER CODE END PV */
 
@@ -102,26 +106,29 @@ int main(void) {
                                            .posY = 20,
                                            .fontSize = 2,
                                            .fontColor = 0x0,
-                                           .backgroundColor = CONVERT_24BIT_COLOR(0xFFFFFF)};
+                                           .backgroundColor = whiteColor};
     Display_textProps currentLabelProps = {.font = font,
                                            .text = "Loading",
                                            .posX = 5,
                                            .posY = 60,
                                            .fontSize = 2,
                                            .fontColor = 0x0,
-                                           .backgroundColor = CONVERT_24BIT_COLOR(0xFFFFFF)};
+                                           .backgroundColor = whiteColor};
     Display_textProps powerLabelProps = {.font = font,
                                          .text = "Loading",
                                          .posX = 5,
                                          .posY = 100,
                                          .fontSize = 2,
                                          .fontColor = 0x0,
-                                         .backgroundColor = CONVERT_24BIT_COLOR(0xFFFFFF)};
+                                         .backgroundColor = whiteColor};
 
     Display_init();
     Display_drawText(&voltageLabelProps);
     Display_drawText(&currentLabelProps);
     Display_drawText(&powerLabelProps);
+
+    // Frame for the diagram
+    Display_drawRectangle(1, 148, DISPLAY_WIDTH - 2, 302, 0x0);
 
     /* USER CODE END 2 */
 
@@ -138,6 +145,8 @@ int main(void) {
         volatile double voltage = ADC_readVoltage(&hi2c1);
         volatile double current = ADC_readCurrent(&hi2c1);
         volatile double power = voltage * current / 1000;
+
+        Buffer_addValue(current);
 
         // Display voltage
         formatFloat(textBuffer, voltage, "V");
@@ -161,6 +170,17 @@ int main(void) {
         }
         powerLabelProps.text = textBuffer;
         Display_drawText(&powerLabelProps);
+
+        for (uint16_t i = 0; i < BUFFER_SIZE; i++) {
+            double currentValue = Buffer_readValue(i);
+            double nextValue = Buffer_readValue(i + 1);
+
+            if (currentValue != nextValue) {
+                Display_drawPoint(i + 3, 150 + (150 - (nextValue / maxCurrent * 150)), whiteColor);
+            }
+
+            Display_drawPoint(i + 3, 150 + (150 - (currentValue / maxCurrent * 150)), 0x0);
+        }
     }
     /* USER CODE END 3 */
 }

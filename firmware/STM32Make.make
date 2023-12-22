@@ -37,6 +37,7 @@ BUILD_DIR = build
 # C sources
 C_SOURCES =  \
 Core/Src/adc.c \
+Core/Src/buffer.c \
 Core/Src/display.c \
 Core/Src/main.c \
 Core/Src/stm32g0xx_hal_msp.c \
