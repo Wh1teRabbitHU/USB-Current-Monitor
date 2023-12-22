@@ -110,11 +110,18 @@ int main(void) {
                                            .fontSize = 2,
                                            .fontColor = CONVERT_24BIT_COLOR(0x0000FF),
                                            .backgroundColor = CONVERT_24BIT_COLOR(0x0)};
+    Display_textProps powerLabelProps = {.font = font,
+                                         .text = "Loading",
+                                         .posX = 5,
+                                         .posY = 100,
+                                         .fontSize = 2,
+                                         .fontColor = CONVERT_24BIT_COLOR(0x0000FF),
+                                         .backgroundColor = CONVERT_24BIT_COLOR(0x0)};
 
     Display_init();
-    Display_clear(0x0);
     Display_drawText(&voltageLabelProps);
     Display_drawText(&currentLabelProps);
+    Display_drawText(&powerLabelProps);
 
     /* USER CODE END 2 */
 
@@ -130,11 +137,14 @@ int main(void) {
 
         volatile double voltage = ADC_readVoltage(&hi2c1);
         volatile double current = ADC_readCurrent(&hi2c1);
+        volatile double power = voltage * current / 1000;
 
+        // Display voltage
         formatFloat(textBuffer, voltage, "V");
         voltageLabelProps.text = textBuffer;
         Display_drawText(&voltageLabelProps);
 
+        // Display current
         if (current < 1) {
             formatFloat(textBuffer, current * 1000, "uA");
         } else {
@@ -142,6 +152,15 @@ int main(void) {
         }
         currentLabelProps.text = textBuffer;
         Display_drawText(&currentLabelProps);
+
+        // Display power
+        if (power < 1) {
+            formatFloat(textBuffer, power * 1000, "mW");
+        } else {
+            formatFloat(textBuffer, power, "W ");
+        }
+        powerLabelProps.text = textBuffer;
+        Display_drawText(&powerLabelProps);
     }
     /* USER CODE END 3 */
 }
@@ -243,13 +262,12 @@ static void MX_GPIO_Init(void) {
     __HAL_RCC_GPIOB_CLK_ENABLE();
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOA, STATUS_LED_Pin | ERROR_LED_Pin | DISPLAY_BLACKLIGHT_EN_Pin | PATH_1_EN_Pin | MUX_A1_Pin,
-                      GPIO_PIN_SET);
+    HAL_GPIO_WritePin(GPIOA, STATUS_LED_Pin | ERROR_LED_Pin | PATH_1_EN_Pin | MUX_A1_Pin, GPIO_PIN_SET);
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(GPIOA,
                       DISPLAY_DC_Pin | DISPLAY_CS_Pin | DISPLAY_SCL_Pin | DISPLAY_SDA_Pin | DISPLAY_RESET_Pin |
-                          PATH_2_EN_Pin | MUX_A0_Pin,
+                          DISPLAY_BLACKLIGHT_EN_Pin | PATH_2_EN_Pin | MUX_A0_Pin,
                       GPIO_PIN_RESET);
 
     /*Configure GPIO pins : STATUS_LED_Pin ERROR_LED_Pin */

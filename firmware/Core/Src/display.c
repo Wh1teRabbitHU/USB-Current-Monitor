@@ -1,25 +1,30 @@
 
 #include <display.h>
 
-void Display_sendDataByte(unsigned char);
-void Display_sendCmd(unsigned char);
-void Display_sendData(unsigned char DH, unsigned char DL);
+void Display_sendDataByte(uint8_t data);
+void Display_sendCmd(uint8_t cmd);
+void Display_sendData(uint8_t DH, uint8_t DL);
 void Display_sendDataHalfWord(uint16_t y);
 
-unsigned char USE_HORIZONTAL = 0;  // 0,1 Vertical screen   2,3 Landscape screen
+uint8_t USE_HORIZONTAL = 0;  // 0,1 Vertical screen   2,3 Landscape screen
 
-void Display_clear(unsigned int bColor) {
-    unsigned int i, j;
-    if ((USE_HORIZONTAL == 0) || (USE_HORIZONTAL == 1))
-        Display_setPosition(0, 0, 171, 319);
-    else
-        Display_setPosition(0, 0, 319, 171);
-    for (i = 0; i < 320; i++) {
-        for (j = 0; j < 172; j++) Display_sendDataHalfWord(bColor);
+void Display_clear(uint16_t bColor) {
+    uint16_t i, j;
+
+    if ((USE_HORIZONTAL == 0) || (USE_HORIZONTAL == 1)) {
+        Display_setPosition(0, 0, DISPLAY_WIDTH - 1, DISPLAY_HEIGHT - 1);
+    } else {
+        Display_setPosition(0, 0, DISPLAY_HEIGHT - 1, DISPLAY_WIDTH - 1);
+    }
+
+    for (i = 0; i < DISPLAY_HEIGHT; i++) {
+        for (j = 0; j < DISPLAY_WIDTH; j++) {
+            Display_sendDataHalfWord(bColor);
+        }
     }
 }
 
-void Display_sendDataByte(unsigned char data) {
+void Display_sendDataByte(uint8_t data) {
     uint8_t i;
 
     HAL_GPIO_WritePin(DISPLAY_CS_GPIO_Port, DISPLAY_CS_Pin, 0);
@@ -36,8 +41,8 @@ void Display_sendDataByte(unsigned char data) {
     HAL_GPIO_WritePin(DISPLAY_CS_GPIO_Port, DISPLAY_CS_Pin, 1);
 }
 
-void Display_sendCmd(unsigned char cmd) {
-    unsigned char i;
+void Display_sendCmd(uint8_t cmd) {
+    uint8_t i;
 
     HAL_GPIO_WritePin(DISPLAY_CS_GPIO_Port, DISPLAY_CS_Pin, 0);
     HAL_GPIO_WritePin(DISPLAY_DC_GPIO_Port, DISPLAY_DC_Pin, 0);
@@ -53,8 +58,8 @@ void Display_sendCmd(unsigned char cmd) {
     HAL_GPIO_WritePin(DISPLAY_CS_GPIO_Port, DISPLAY_CS_Pin, 1);
 }
 
-void Display_sendData(unsigned char dataHigh, unsigned char dataLow) {
-    unsigned char i;
+void Display_sendData(uint8_t dataHigh, uint8_t dataLow) {
+    uint8_t i;
 
     HAL_GPIO_WritePin(DISPLAY_CS_GPIO_Port, DISPLAY_CS_Pin, 0);
     HAL_GPIO_WritePin(DISPLAY_DC_GPIO_Port, DISPLAY_DC_Pin, 1);
@@ -79,9 +84,9 @@ void Display_sendData(unsigned char dataHigh, unsigned char dataLow) {
 }
 
 void Display_sendDataHalfWord(uint16_t data) {
-    unsigned char dataHigh, dataLow;
-    dataHigh = data >> 8;
-    dataLow = data;
+    uint8_t dataHigh = data >> 8;
+    uint8_t dataLow = data;
+
     Display_sendData(dataHigh, dataLow);
 }
 
@@ -171,9 +176,13 @@ void Display_init(void) {
     HAL_Delay(120);
     Display_sendCmd(0x29);
     HAL_Delay(10);
+
+    Display_clear(0x0);
+
+    HAL_GPIO_WritePin(DISPLAY_BLACKLIGHT_EN_GPIO_Port, DISPLAY_BLACKLIGHT_EN_Pin, 1);
 }
 
-void Display_setPosition(unsigned int x1, unsigned int y1, unsigned int x2, unsigned int y2) {
+void Display_setPosition(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2) {
     Display_sendCmd(0x36);
     if (USE_HORIZONTAL == 0)
         Display_sendDataByte(0x00);
@@ -257,15 +266,15 @@ void Display_drawText(Display_textProps *textProps) {
     }
 }
 
-void Display_drawPoint(unsigned int x, unsigned int y, unsigned int color) {
+void Display_drawPoint(uint16_t x, uint16_t y, uint16_t color) {
     Display_setPosition(x, y, x, y);
     Display_sendDataHalfWord(color);
 }
 
-void Display_drawLine(unsigned int x1, unsigned int y1, unsigned int x2, unsigned int y2, unsigned int color) {
-    unsigned int t;
-    int xerr = 0, yerr = 0, delta_x, delta_y, distance;
-    int incx, incy, uRow, uCol;
+void Display_drawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t color) {
+    uint16_t t;
+    int16_t xerr = 0, yerr = 0, delta_x, delta_y, distance;
+    int16_t incx, incy, uRow, uCol;
     delta_x = x2 - x1;
     delta_y = y2 - y1;
     uRow = x1;
@@ -305,17 +314,17 @@ void Display_drawLine(unsigned int x1, unsigned int y1, unsigned int x2, unsigne
     }
 }
 
-void Display_drawRectangle(unsigned int x1, unsigned int y1, unsigned int x2, unsigned int y2, unsigned int color) {
+void Display_drawRectangle(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t color) {
     Display_drawLine(x1, y1, x2, y1, color);
     Display_drawLine(x1, y1, x1, y2, color);
     Display_drawLine(x1, y2, x2, y2, color);
     Display_drawLine(x2, y1, x2, y2, color);
 }
 
-void Display_drawCircle(unsigned int x0, unsigned int y0, unsigned char r, unsigned int color) {
-    int a, b;
-    a = 0;
-    b = r;
+void Display_drawCircle(uint16_t x0, uint16_t y0, uint16_t r, uint16_t color) {
+    int16_t a = 0;
+    int16_t b = r;
+
     while (a <= b) {
         Display_drawPoint(x0 - b, y0 - a, color);  // 3
         Display_drawPoint(x0 + b, y0 - a, color);  // 0
@@ -326,16 +335,19 @@ void Display_drawCircle(unsigned int x0, unsigned int y0, unsigned char r, unsig
         Display_drawPoint(x0 + a, y0 + b, color);  // 6
         Display_drawPoint(x0 - b, y0 + a, color);  // 7
         a++;
+
         if ((a * a + b * b) > (r * r)) {
             b--;
         }
     }
 }
 
-void Display_drawPicture(unsigned int x, unsigned int y, unsigned int length, unsigned int width, const char pic[]) {
-    unsigned int i, j;
-    unsigned int k = 0;
+void Display_drawPicture(uint16_t x, uint16_t y, uint16_t length, uint16_t width, const uint8_t pic[]) {
+    uint16_t i, j;
+    uint32_t k = 0;
+
     Display_setPosition(x, y, x + length - 1, y + width - 1);
+
     for (i = 0; i < length; i++) {
         for (j = 0; j < width; j++) {
             Display_sendData(pic[k * 2], pic[k * 2 + 1]);
